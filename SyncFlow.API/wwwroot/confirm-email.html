@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Confirmando correo…</title>
+    <script>
+  async function confirmEmail() {
+    const params = new URLSearchParams(location.search);
+    const res = await fetch('/auth/confirmEmail', {
+      method: 'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        userId: params.get('uid'),
+        token : decodeURIComponent(params.get('token'))
+      })
+    });
+    document.body.innerHTML =
+      res.ok ? '<h2>¡Correo confirmado! Puedes cerrar esta ventana.</h2>'
+             : '<h2>Error al confirmar correo.</h2>';
+  }
+  window.addEventListener('DOMContentLoaded', confirmEmail);
+    </script>
+</head>
+<body>
+    <h2>Procesando…</h2>
+</body>
+</html>

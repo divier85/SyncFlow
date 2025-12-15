@@ -1,0 +1,67 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard Demo</title>
+  <style>
+    .kpi {display:inline-block;padding:1rem;margin:0.5rem;border:1px solid #ccc}
+    .danger{color:#c00}
+  </style>
+</head>
+<body>
+  <h1>Dashboard KPIs</h1>
+
+  <div id="kpiProjects" class="kpi"></div>
+  <div id="kpiOverdue"  class="kpi"></div>
+
+  <h2>Carga por usuario</h2>
+  <canvas id="loadChart" width="400" height="200"></canvas>
+
+  <!-- opcional: Chart.js para la gráfica -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+  <script type="module">
+  /* ------------ helpers visuales ------------ */
+  function renderKpi(value, selector, extraClass='') {
+    const el=document.querySelector(selector);
+    el.textContent = value;
+    if(extraClass) el.classList.add(extraClass);
+  }
+
+  function drawUserLoadChart(load) {
+    // load: [{userId,userName,activeTasks}]
+    const ctx = document.getElementById('loadChart');
+    new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels: load.map(u=>u.userName),
+        datasets:[{label:'Tareas activas',
+                   data: load.map(u=>u.activeTasks)}]
+      }
+    });
+  }
+
+  /* ------------ llamada a la API ------------ */
+  (async () => {
+    // Pega tu JWT (de /auth/login) cuando se cargue la página
+    const token = prompt('Pega tu JWT Bearer');
+
+    const apiBase = "https://localhost:44318";   // ← cámbialo al puerto real
+    // o "http://localhost:5000" si usas HTTP
+    const res = await fetch(`${apiBase}/api/dashboard`, {
+    headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+      alert('Error ' + res.status);
+      return;
+    }
+    const sum = await res.json();
+
+    renderKpi(sum.totalProjects, '#kpiProjects');
+    renderKpi(sum.tasksOverdue,  '#kpiOverdue', 'danger');
+    drawUserLoadChart(sum.loadByUser);
+  })();
+  </script>
+</body>
+</html>

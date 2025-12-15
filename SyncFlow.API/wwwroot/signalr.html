@@ -1,0 +1,12 @@
+﻿<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@8/dist/browser/signalr.min.js"></script>
+<script>
+(async () => {
+  const jwt = prompt("Pega tu JWT:");
+  const conn = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5000/hubs/notify", { accessTokenFactory: () => jwt })
+      .build();
+  conn.on("notify", m => alert("PUSH » " + m.subject));
+  await conn.start();
+  console.log("Conectado al Hub");
+})();
+</script>
